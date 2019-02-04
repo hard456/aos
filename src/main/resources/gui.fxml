@@ -57,6 +57,12 @@
                                 mnemonicParsing="false"
                                 text="FFT"/>
                     </items>
+                    <items>
+                        <MenuItem
+                                onAction="#useInverseFFT"
+                                mnemonicParsing="false"
+                                text="Inverse FFT"/>
+                    </items>
                 </Menu>
             </menus>
 

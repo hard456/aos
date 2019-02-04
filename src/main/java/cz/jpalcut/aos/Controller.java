@@ -11,7 +11,6 @@ import org.apache.commons.math3.complex.Complex;
 
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +25,8 @@ public class Controller {
     ImageView imageView;
 
     private BufferedImage bufferedImage;
+
+    private Complex[][] matrixFFT;
 
     public void open() {
         File file;
@@ -44,67 +45,38 @@ public class Controller {
             }
 
         }
-        showImage();
+        showImage(bufferedImage);
     }
 
     public void quit() {
         System.exit(0);
     }
 
-    public void useFFT() {
+    public void useInverseFFT(){
         Complex[][] matrix;
-        double intensity, maxValue = 0.0;
-        if (bufferedImage != null) {
-            FFT fft = new FFT();
-            matrix = fft.compute(bufferedImage);
-
-            for (int i = 0; i < matrix.length; i++) {
-                for (int j = 0; j < matrix.length; j++) {
-                    Complex number = matrix[i][j];
-
-                    if (number == null) {
-                        continue;
-                    }
-                    intensity = Math.sqrt(number.getReal() * number.getReal() + number.getImaginary() * number.getImaginary());
-                    maxValue = Math.max(maxValue, intensity);
-                }
-            }
-
-            for (int i = 0; i < matrix.length; i++) {
-                for (int j = 0; j < matrix.length; j++) {
-                    Complex c = matrix[i][j];
-                    if (c == null) {
-                        c = new Complex(0.0, 0.0);
-                    }
-                    double value = Math.sqrt(c.getReal() * c.getReal() + c.getImaginary() * c.getImaginary());
-
-                    intensity = value / maxValue;
-                    int rgb = Color.HSBtoRGB(0f, 0f, (float) intensity);
-                    bufferedImage.setRGB(i, j, rgb);
-                }
-
-
-            }
-            int w = matrix.length;
-            int h = w;
-
-            BufferedImage newImage = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), bufferedImage.getType());
-
-            newImage.getGraphics().drawImage(bufferedImage, 0, 0, w / 2, h / 2, w / 2, h / 2, w, h, null);
-            newImage.getGraphics().drawImage(bufferedImage, w / 2, h / 2, w, h, 0, 0, w / 2, h / 2, null);
-            newImage.getGraphics().drawImage(bufferedImage, w / 2, 0, w, h / 2, 0, h / 2, w / 2, h, null);
-            newImage.getGraphics().drawImage(bufferedImage, 0, h / 2, w / 2, h, w / 2, 0, w, h / 2, null);
-
-            bufferedImage = newImage;
-
-            showImage();
+        if(matrixFFT != null){
+            FFT fft = new FFT(true);
+            matrix = fft.compute(matrixFFT);
+            bufferedImage = fft.createIFFTImage(bufferedImage, matrix);
+            showImage(bufferedImage);
         }
-
     }
 
-    private void showImage(){
-        if(bufferedImage != null){
-            Image image = SwingFXUtils.toFXImage(bufferedImage, null);
+    public void useFFT() {
+        if (bufferedImage != null) {
+            FFT fft = new FFT(false);
+            Complex[][] matrix = ImageUtils.create2DArray(bufferedImage);
+            matrix = fft.compute(matrix);
+            matrixFFT = matrix;
+            bufferedImage = fft.createFFTImage(bufferedImage, matrix);
+            bufferedImage = fft.centerFFTImage(bufferedImage);
+            showImage(bufferedImage);
+        }
+    }
+
+    private void showImage(BufferedImage img){
+        if(img != null){
+            Image image = SwingFXUtils.toFXImage(img, null);
 //            imageView.setPreserveRatio(true);
 //            imageView.fitWidthProperty().bind(Main.getStage().widthProperty());
 //            imageView.fitHeightProperty().bind(Main.getStage().heightProperty());

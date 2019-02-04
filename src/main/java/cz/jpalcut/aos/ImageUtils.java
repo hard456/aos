@@ -6,29 +6,10 @@ import java.awt.image.BufferedImage;
 
 public class ImageUtils {
 
-
-
-    /**
-     * Převede RGB do stupně šedi
-     * @param img BufferedImage
-     * @return BufferedImage
-     */
-    public static BufferedImage convertImgToGreyScale(BufferedImage img) {
-        for (int x = 0; x < img.getWidth(); ++x) {
-            for (int y = 0; y < img.getHeight(); ++y) {
-                int rgb = img.getRGB(x, y);
-                int grayLevel = convertPixelToGrayLevel(rgb);
-                int gray = (grayLevel << 16) + (grayLevel << 8) + grayLevel;
-                img.setRGB(x, y, gray);
-            }
-        }
-        return img;
-    }
-
-    public static int convertPixelToGrayLevel(int pixel){
-        int r = (pixel >> 16) & 0xFF;
-        int g = (pixel >> 8) & 0xFF;
-        int b = (pixel & 0xFF);
+    private static int convertRGBToGrayLevel(int value){
+        int r = (value >> 16) & 0xFF;
+        int g = (value >> 8) & 0xFF;
+        int b = (value & 0xFF);
         return  (r + g + b) / 3;
     }
 
@@ -36,11 +17,14 @@ public class ImageUtils {
         Complex[][] array = new Complex[image.getHeight()][image.getWidth()];
         for (int i = 0; i < image.getHeight(); i++){
             for (int j = 0; j < image.getWidth(); j++){
-                array[i][j] = Complex.valueOf(convertPixelToGrayLevel(image.getRGB(j, i)),0);
+                array[i][j] = Complex.valueOf(convertRGBToGrayLevel(image.getRGB(i, j)),0);
             }
         }
         return array;
     }
 
+    public static int convertGrayLevelToRGB(int value){
+        return ((value << 16) + (value << 8) + value);
+    }
 
 }
