@@ -15,7 +15,7 @@ public class Main extends Application {
         window = primaryStage;
         FXMLLoader loader =  new FXMLLoader(getClass().getResource("/gui.fxml"));
         Parent root = loader.load();
-        window.setTitle("AOS - inverzní filtr");
+        window.setTitle("AOS - Inverzní filtr");
         window.setScene(new Scene(root, 1024, 768));
         window.show();
     }

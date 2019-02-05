@@ -45,7 +45,7 @@ public class Controller {
             }
 
         }
-        showImage(bufferedImage);
+        showImage();
     }
 
     public void quit() {
@@ -58,7 +58,7 @@ public class Controller {
             FFT fft = new FFT(true);
             matrix = fft.compute(matrixFFT);
             bufferedImage = fft.createIFFTImage(bufferedImage, matrix);
-            showImage(bufferedImage);
+            showImage();
         }
     }
 
@@ -70,13 +70,57 @@ public class Controller {
             matrixFFT = matrix;
             bufferedImage = fft.createFFTImage(bufferedImage, matrix);
             bufferedImage = fft.centerFFTImage(bufferedImage);
-            showImage(bufferedImage);
+            showImage();
         }
     }
 
-    private void showImage(BufferedImage img){
-        if(img != null){
-            Image image = SwingFXUtils.toFXImage(img, null);
+    public void useFilterConvolution(){
+        Complex[][] complexes;
+        double[][] filter = new double[3][3];
+        filter[0][0] = 1;
+        filter[0][1] = 1;
+        filter[0][2] = 1;
+        filter[1][0] = 1;
+        filter[1][1] = 0;
+        filter[1][2] = 1;
+        filter[2][0] = 1;
+        filter[2][1] = 1;
+        filter[2][2] = 1;
+        complexes = ImageUtils.arrayToComplexArray(filter,bufferedImage.getWidth(),bufferedImage.getHeight());
+        FFT fft = new FFT(false);
+        complexes = fft.compute(complexes);
+        complexes = fft.convolution(matrixFFT, complexes);
+        FFT ifft = new FFT(true);
+        matrixFFT = ifft.compute(complexes);
+        bufferedImage = fft.createIFFTImage(bufferedImage, matrixFFT);
+        showImage();
+    }
+
+    public void useFilterDeconvolution(){
+        Complex[][] complexes;
+        double[][] filter = new double[3][3];
+        filter[0][0] = 1;
+        filter[0][1] = 1;
+        filter[0][2] = 1;
+        filter[1][0] = 1;
+        filter[1][1] = 0;
+        filter[1][2] = 1;
+        filter[2][0] = 1;
+        filter[2][1] = 1;
+        filter[2][2] = 1;
+        complexes = ImageUtils.arrayToComplexArray(filter,bufferedImage.getWidth(),bufferedImage.getHeight());
+        FFT fft = new FFT(false);
+        complexes = fft.compute(complexes);
+        complexes = fft.deconvolution(matrixFFT, complexes);
+        FFT ifft = new FFT(true);
+        matrixFFT = ifft.compute(complexes);
+        bufferedImage = fft.createIFFTImage(bufferedImage, matrixFFT);
+        showImage();
+    }
+
+    private void showImage(){
+        if(bufferedImage != null){
+            Image image = SwingFXUtils.toFXImage(bufferedImage, null);
 //            imageView.setPreserveRatio(true);
 //            imageView.fitWidthProperty().bind(Main.getStage().widthProperty());
 //            imageView.fitHeightProperty().bind(Main.getStage().heightProperty());

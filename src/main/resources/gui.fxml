@@ -50,7 +50,7 @@
 
             <!-- FUNCTION MENU -->
             <menus>
-                <Menu mnemonicParsing="false" text="Function">
+                <Menu mnemonicParsing="false" text="Transform">
                     <items>
                         <MenuItem
                                 onAction="#useFFT"
@@ -61,9 +61,26 @@
                         <MenuItem
                                 onAction="#useInverseFFT"
                                 mnemonicParsing="false"
-                                text="Inverse FFT"/>
+                                text="IFFT"/>
                     </items>
                 </Menu>
+            </menus>
+
+            <menus>
+            <Menu mnemonicParsing="false" text="Filter">
+                <items>
+                    <MenuItem
+                            onAction="#useFilterConvolution"
+                            mnemonicParsing="false"
+                            text="Convolution"/>
+                </items>
+                <items>
+                    <MenuItem
+                            onAction="#useFilterDeconvolution"
+                            mnemonicParsing="false"
+                            text="Deconvolution"/>
+                </items>
+            </Menu>
             </menus>
 
         </MenuBar>

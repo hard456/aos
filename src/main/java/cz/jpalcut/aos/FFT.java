@@ -17,7 +17,7 @@ public class FFT {
 //        System.out.println("W="+image.getWidth()+":H="+image.getHeight());
 
         //řádky
-        for (int i = 0; i < matrix.length; i++) {
+        for (int i = 0; i < matrix[0].length; i++) {
             matrix[i] = recursiveFFT(matrix[i]);
         }
 
@@ -52,17 +52,39 @@ public class FFT {
                 angle = 2.0 * Math.PI * i / row.length;
                 coefficient = new Complex(1.0 * Math.cos(angle), 1.0 * Math.sin(angle));
             }
-
             result[i] = evenIndexes[i].add(oddIndexes[i].multiply(coefficient));
             result[i + row.length / 2] = evenIndexes[i].subtract(oddIndexes[i].multiply(coefficient));
         }
         return result;
     }
 
+    public Complex[][] convolution(Complex[][] first, Complex[][] second){
+        Complex[][] newMatrix = new Complex[first.length][first[0].length];
+        for (int i = 0; i < first.length; i++){
+            for (int j = 0; j < first[i].length; j++){
+                newMatrix[i][j] = first[i][j].multiply(second[i][j]);
+            }
+        }
+        return newMatrix;
+    }
+
+    public Complex[][] deconvolution(Complex[][] first, Complex[][] second){
+        Complex[][] newMatrix = new Complex[first.length][first[0].length];
+        for (int i = 0; i < first.length; i++){
+            for (int j = 0; j < first[i].length; j++){
+                if(second[i][j].getReal() < 0.001){
+                    second[i][j] = new Complex(0.001,0.0);
+                }
+                newMatrix[i][j] = first[i][j].divide(second[i][j]);
+            }
+        }
+        return newMatrix;
+    }
+
     public double getMaxIntensity(Complex[][] matrix){
         double intensity, maxValue = 0.0;
         for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix.length; j++) {
+            for (int j = 0; j < matrix[i].length; j++) {
                 Complex number = matrix[i][j];
 
                 if (number == null) {
@@ -79,13 +101,12 @@ public class FFT {
         double intensity;
         double maxValue = getMaxIntensity(matrix);
         for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix.length; j++) {
+            for (int j = 0; j < matrix[i].length; j++) {
                 Complex c = matrix[i][j];
                 if (c == null) {
                     c = new Complex(0.0, 0.0);
                 }
                 double value = Math.sqrt(c.getReal() * c.getReal() + c.getImaginary() * c.getImaginary());
-
                 intensity = Math.log(value) / Math.log(maxValue);
                 int rgb = Color.HSBtoRGB(0f, 0f, (float) intensity);
                 image.setRGB(i, j, rgb);
@@ -97,14 +118,31 @@ public class FFT {
     public BufferedImage createIFFTImage(BufferedImage image, Complex[][] matrix){
         int value;
         for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix.length; j++) {
+            for (int j = 0; j < matrix[i].length; j++) {
                 Complex c = matrix[i][j];
-                value = (int)(c.getReal()/(matrix.length * matrix[0].length));
+                value = (int)(c.getReal()/(matrix.length * matrix[i].length));
+                value = Math.min(255,Math.max(0,value));
                 image.setRGB(i, j, ImageUtils.convertGrayLevelToRGB(value));
             }
         }
         return image;
     }
+
+//    public BufferedImage createFilterIFFTImage(BufferedImage image, Complex[][] matrix){
+//        double value;
+//        double maxValue = getMaxIntensity(matrix);
+//        for (int i = 0; i < matrix.length; i++) {
+//            for (int j = 0; j < matrix[i].length; j++) {
+//                Complex c = matrix[i][j];
+//                value = (int)(c.getReal()/(matrix.length * matrix[i].length));
+//                value = Math.log(value) / Math.log(maxValue);
+//                int rgb = Color.HSBtoRGB(0f, 0f, (float)value);
+//                image.setRGB(i, j, rgb);
+//
+//            }
+//        }
+//        return image;
+//    }
 
     public BufferedImage centerFFTImage(BufferedImage image){
         int w = image.getWidth();
@@ -128,8 +166,12 @@ public class FFT {
     }
 
     public Complex[] getEvenIndexes(Complex[] row){
-        Complex[] array = new Complex[row.length / 2];
-        for (int i = 0; i < array.length; i++){
+        int length = row.length/2;
+//        if(row.length % 2 != 0){
+//            length++;
+//        }
+        Complex[] array = new Complex[length];
+        for (int i = 0; i < length; i++){
             array[i] = row[2 * i];
         }
         return array;
