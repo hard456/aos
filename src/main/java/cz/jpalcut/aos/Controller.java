@@ -28,6 +28,8 @@ public class Controller {
 
     private Complex[][] matrixFFT;
 
+    private Complex[][] matrix2;
+
     public void open() {
         File file;
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Image", "*.jpg",
@@ -90,6 +92,7 @@ public class Controller {
         FFT fft = new FFT(false);
         complexes = fft.compute(complexes);
         complexes = fft.convolution(matrixFFT, complexes);
+        matrix2 = complexes;
         FFT ifft = new FFT(true);
         matrixFFT = ifft.compute(complexes);
         bufferedImage = fft.createIFFTImage(bufferedImage, matrixFFT);
@@ -111,7 +114,7 @@ public class Controller {
         complexes = ImageUtils.arrayToComplexArray(filter,bufferedImage.getWidth(),bufferedImage.getHeight());
         FFT fft = new FFT(false);
         complexes = fft.compute(complexes);
-        complexes = fft.deconvolution(matrixFFT, complexes);
+        complexes = fft.deconvolution(matrix2, complexes);
         FFT ifft = new FFT(true);
         matrixFFT = ifft.compute(complexes);
         bufferedImage = fft.createIFFTImage(bufferedImage, matrixFFT);

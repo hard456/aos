@@ -103,9 +103,6 @@ public class FFT {
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {
                 Complex c = matrix[i][j];
-                if (c == null) {
-                    c = new Complex(0.0, 0.0);
-                }
                 double value = Math.sqrt(c.getReal() * c.getReal() + c.getImaginary() * c.getImaginary());
                 intensity = Math.log(value) / Math.log(maxValue);
                 int rgb = Color.HSBtoRGB(0f, 0f, (float) intensity);
