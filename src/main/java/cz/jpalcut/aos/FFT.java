@@ -143,7 +143,7 @@ public class FFT {
                 Complex c = matrix[i][j];
                 double value = Math.sqrt(c.getReal() * c.getReal() + c.getImaginary() * c.getImaginary());
                 intensity = Math.log(value) / Math.log(maxValue);
-                intensity = Math.min(255,Math.max(0,intensity*255));
+                intensity = Math.min(255,Math.max(0,(int)(intensity*255)));
                 image.setRGB(j, i, Utils.convertGrayLevelToRGB((int)intensity));
             }
         }

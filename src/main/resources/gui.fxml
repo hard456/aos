@@ -51,7 +51,7 @@
                                 text="Fast Fourier transform" onAction="#useFFT" disable="true" fx:id="FFTButton"
                                 focusTraversable="false"/>
                         <Button layoutX="10.0" layoutY="65.0" mnemonicParsing="false" prefWidth="180"
-                                text="Inverse Fast Fourier transform" onAction="#useInverseFFT" disable="true"
+                                text="Inverse fast Fourier transform" onAction="#useInverseFFT" disable="true"
                                 fx:id="IFFTButton" focusTraversable="false"/>
 
                         <!--Konvoluce-->
