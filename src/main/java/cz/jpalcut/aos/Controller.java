@@ -44,7 +44,7 @@ public class Controller {
 
     private BufferedImage bufferedImage;
 
-    private Complex[][] matrixImage;
+    private Complex[][] matrixFFT, matrixIFFT;
 
     /**
      * Načtení obrázku
@@ -64,21 +64,22 @@ public class Controller {
             } catch (IOException e) {
                 setStatus("Nastala chyba při načtení obrázku.", "RED");
             }
-
-        }
-
-        if (!Utils.isNumberPowerOfTwo(bufferedImage.getWidth()) || !Utils.isNumberPowerOfTwo(bufferedImage.getHeight())) {
-            bufferedImage = null;
-            imageView.setImage(null);
-            disableAllButtons();
-            openMI.setDisable(false);
-            setStatus("Výška nebo šířka obrázku nemá velikost 2^n.", "RED");
-        } else {
-            showImage();
-            disableAllButtons();
-            FFTButton.setDisable(false);
-            saveAsMI.setDisable(false);
-            setStatus("Obrázek byl načten.", "GREEN");
+            if (!Utils.isNumberPowerOfTwo(bufferedImage.getWidth()) || !Utils.isNumberPowerOfTwo(bufferedImage.getHeight())) {
+                bufferedImage = null;
+                imageView.setImage(null);
+                disableAllButtons();
+                openMI.setDisable(false);
+                setStatus("Výška nebo šířka obrázku nemá velikost 2^n.", "RED");
+            } else {
+                showImage();
+                disableAllButtons();
+                FFTButton.setDisable(false);
+                saveAsMI.setDisable(false);
+                openMI.setDisable(false);
+                setStatus("Obrázek byl načten.", "GREEN");
+            }
+            matrixFFT = null;
+            matrixIFFT = null;
         }
 
     }
@@ -116,7 +117,8 @@ public class Controller {
             public Void call() {
         Complex[][] matrix;
         FFT fft = new FFT(true);
-        matrix = fft.compute(matrixImage);
+        matrix = fft.compute(matrixFFT);
+        matrixIFFT = matrix.clone();
         bufferedImage = fft.createIFFTImage(bufferedImage, matrix);
         showImage();
         IFFTButton.setDisable(true);
@@ -144,17 +146,21 @@ public class Controller {
         Task task = new Task<Void>() {
             @Override
             public Void call() {
+                Complex[][] matrix;
                 FFT fft = new FFT(false);
-                Complex[][] matrix = Utils.create2DArray(bufferedImage);
+                if(matrixIFFT != null){
+                    matrix = matrixIFFT;
+                    matrix = Utils.divideMatrix(matrix);
+                }
+                else{
+                    matrix = Utils.create2DArray(bufferedImage);
+                }
+
                 matrix = fft.compute(matrix);
-                matrixImage = matrix.clone();
+                matrixFFT = matrix.clone();
                 bufferedImage = fft.createFFTImage(bufferedImage, matrix);
                 bufferedImage = fft.centerFFTImage(bufferedImage);
                 showImage();
-                FFTButton.setDisable(true);
-                IFFTButton.setDisable(false);
-                convolutionButton.setDisable(false);
-                deconvolutionButton.setDisable(false);
                 return null;
             }
         };
@@ -186,14 +192,11 @@ public class Controller {
                 complexes = Utils.arrayToComplexArray(filter, bufferedImage.getWidth(), bufferedImage.getHeight());
                 FFT fft = new FFT(false);
                 complexes = fft.compute(complexes);
-                complexes = fft.convolution(matrixImage, complexes);
-                matrixImage = complexes.clone();
-                FFT ifft = new FFT(true);
-                complexes = ifft.compute(complexes);
-                bufferedImage = fft.createIFFTImage(bufferedImage, complexes);
+                complexes = fft.convolution(matrixFFT, complexes);
+                matrixFFT = complexes.clone();
+                bufferedImage = fft.createFFTImage(bufferedImage, complexes);
+                bufferedImage = fft.centerFFTImage(bufferedImage);
                 showImage();
-                IFFTButton.setDisable(true);
-                FFTButton.setDisable(false);
                 return null;
             }
         };
@@ -230,11 +233,10 @@ public class Controller {
                 complexes = Utils.arrayToComplexArray(filter, bufferedImage.getWidth(), bufferedImage.getHeight());
                 FFT fft = new FFT(false);
                 complexes = fft.compute(complexes);
-                complexes = fft.deconvolution(matrixImage, complexes, threshold);
-                matrixImage = complexes.clone();
-                FFT ifft = new FFT(true);
-                complexes = ifft.compute(complexes);
-                bufferedImage = fft.createIFFTImage(bufferedImage, complexes);
+                complexes = fft.deconvolution(matrixFFT, complexes, threshold);
+                matrixFFT = complexes.clone();
+                bufferedImage = fft.createFFTImage(bufferedImage, complexes);
+                bufferedImage = fft.centerFFTImage(bufferedImage);
                 showImage();
                 return null;
             }
@@ -287,7 +289,7 @@ public class Controller {
      * Odblokování tlačítek po provedení filtru
      */
     private void enableButtonsAfterFilter() {
-        FFTButton.setDisable(false);
+        IFFTButton.setDisable(false);
         openMI.setDisable(false);
         saveAsMI.setDisable(false);
         convolutionButton.setDisable(false);

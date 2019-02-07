@@ -184,4 +184,20 @@ public class Utils {
         return number;
     }
 
+    /**
+     * Vydělí hodnoty matice Complex[][] počtem prvků matice
+     * @param matrix Complex[][]
+     * @return Complex[][]
+     */
+    public static Complex[][] divideMatrix(Complex[][] matrix){
+        int number = matrix.length * matrix[0].length;
+        Complex[][] newMatrix = new Complex[matrix.length][matrix[0].length];
+        for (int i = 0; i < matrix.length; i++){
+            for (int j = 0; j < matrix[i].length; j++){
+                newMatrix[i][j] = new Complex(matrix[i][j].getReal()/number,matrix[i][j].getImaginary()/number);
+            }
+        }
+        return newMatrix;
+    }
+
 }

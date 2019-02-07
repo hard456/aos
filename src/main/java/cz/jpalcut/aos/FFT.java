@@ -2,7 +2,6 @@ package cz.jpalcut.aos;
 
 import org.apache.commons.math3.complex.Complex;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
@@ -144,8 +143,8 @@ public class FFT {
                 Complex c = matrix[i][j];
                 double value = Math.sqrt(c.getReal() * c.getReal() + c.getImaginary() * c.getImaginary());
                 intensity = Math.log(value) / Math.log(maxValue);
-                int rgb = Color.HSBtoRGB(0f, 0f, (float) intensity);
-                image.setRGB(j, i, rgb);
+                intensity = Math.min(255,Math.max(0,intensity*255));
+                image.setRGB(j, i, Utils.convertGrayLevelToRGB((int)intensity));
             }
         }
         return image;
